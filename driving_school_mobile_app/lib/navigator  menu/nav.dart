@@ -19,7 +19,8 @@ class _BottomNavigationBarExampleState
       TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
   static List<Widget> _widgetOptions = <Widget>[
     Dashboardpage(),
-   Text('data'),
+    BookingCalendar(),
+    BookingCalendar(),
     Text(
       'Index 2: School',
       style: optionStyle,
@@ -41,7 +42,7 @@ class _BottomNavigationBarExampleState
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: customblack,
         unselectedItemColor: lightgray,
-        items: const <BottomNavigationBarItem>[
+        items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.dashboard_outlined),
             label: 'Menu',
@@ -49,6 +50,10 @@ class _BottomNavigationBarExampleState
           BottomNavigationBarItem(
             icon: Icon(Icons.schedule_outlined),
             label: 'lessons',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.score),
+            label: 'Progress',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.school_outlined),
