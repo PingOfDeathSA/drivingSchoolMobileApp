@@ -19,7 +19,7 @@ class _BottomNavigationBarExampleState
       TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
   static List<Widget> _widgetOptions = <Widget>[
     Dashboardpage(),
-    TableEventsExample(),
+   Text('data'),
     Text(
       'Index 2: School',
       style: optionStyle,
@@ -48,7 +48,7 @@ class _BottomNavigationBarExampleState
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.schedule_outlined),
-            label: 'learsons',
+            label: 'lessons',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.school_outlined),
