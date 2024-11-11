@@ -91,3 +91,110 @@ List<Map<String, dynamic>> generateDummyLessonsData() {
 
   return lessonsDate;
 }
+
+List<dynamic> usersLessons = [
+  {
+    'lessons': '1',
+    'date': '2024-11-10',
+    'time': '8:00',
+    'status': 'completed',
+    'instructor': 'Mr. John Doe',
+    'course': 'code 10',
+    'duration': '1 hour',
+    'location': '522 Tembisa Ivory Driving School',
+    'student': 'Lebo Mokwena',
+    'lesson_type': 'Introduction to Motor Vehicle Controls',
+  },
+
+  {
+    'lessons': '2',
+    'date': '2024-11-11',
+    'time': '9:00',
+    'status': 'completed',
+    'instructor': 'Ms. Jane Smith',
+    'course': 'code 10',
+    'duration': '1 hour',
+    'location': '522 Tembisa Ivory Driving School',
+    'student': 'Lebo Mokwena',
+    'lesson_type': 'How to start, stop the engine and move off',
+  },
+
+  // Added lessons
+  {
+    'lessons': '3',
+    'date': '2024-11-12',
+    'time': '10:00',
+    'status': 'completed',
+    'instructor': 'Mr. Michael Williams',
+    'course': 'code 8',
+    'duration': '1 hour',
+    'location': 'Johannesburg Central Driving School',
+    'student': 'Siphiwe Ndlovu',
+    'lesson_type': 'Basic Vehicle Maintenance',
+  },
+
+  {
+    'lessons': '4',
+    'date': '2024-11-13',
+    'time': '14:00',
+    'status': 'completed',
+    'instructor': 'Ms. Sarah Lee',
+    'course': 'code 8',
+    'duration': '1 hour',
+    'location': 'Pretoria West Driving School',
+    'student': 'Siphiwe Ndlovu',
+    'lesson_type': 'Parking and Reverse Techniques',
+  },
+
+  {
+    'lessons': '5',
+    'date': '2024-11-14',
+    'time': '11:00',
+    'status': 'missed',
+    'instructor': 'Mr. John Doe',
+    'course': 'code 10',
+    'duration': '1 hour',
+    'location': 'Tembisa Ivory Driving School',
+    'student': 'Lebo Mokwena',
+    'lesson_type': 'Highway Driving Skills',
+  },
+
+  {
+    'lessons': '6',
+    'date': '2024-11-15',
+    'time': '12:00',
+    'status': 'pending',
+    'instructor': 'Ms. Jane Smith',
+    'course': 'code 10',
+    'duration': '1 hour',
+    'location': 'Johannesburg Central Driving School',
+    'student': 'Siphiwe Ndlovu',
+    'lesson_type': 'Night Driving Practice',
+  },
+
+  {
+    'lessons': '7',
+    'date': '2024-11-16',
+    'time': '13:00',
+    'status': 'pending',
+    'instructor': 'Mr. Michael Williams',
+    'course': 'code 8',
+    'duration': '1 hour',
+    'location': 'Pretoria West Driving School',
+    'student': 'Lebo Mokwena',
+    'lesson_type': 'Emergency Braking Techniques',
+  },
+
+  {
+    'lessons': '8',
+    'date': '2024-11-17',
+    'time': '15:00',
+    'status': 'pending',
+    'instructor': 'Ms. Sarah Lee',
+    'course': 'code 8',
+    'duration': '1 hour',
+    'location': 'Tembisa Ivory Driving School',
+    'student': 'Siphiwe Ndlovu',
+    'lesson_type': 'Driver Safety and Rules of the Road',
+  },
+];

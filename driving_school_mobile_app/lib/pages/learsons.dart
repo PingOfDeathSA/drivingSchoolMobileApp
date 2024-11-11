@@ -225,7 +225,7 @@ class _BookingCalendarState extends State<BookingCalendar> {
               padding: const EdgeInsets.all(8.0),
               child: Text(
                 "You cannot book lessons for past dates.",
-                style: TextStyle(color: Colors.red),
+                style: TextStyle(color: redcolor),
               ),
             ),
           ]

@@ -39,6 +39,7 @@ dependencies:
   table_calendar: ^3.1.2
   dropdown_button2: ^2.3.9
   curved_navigation_bar: ^1.0.6
+  syncfusion_flutter_gauges: ^27.1.58
   
 
 dev_dependencies:
