@@ -68,7 +68,7 @@ class ProgressPage extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Icon(
-                              Icons.schedule_rounded,
+                              Icons.pending_actions,
                               color: Colors.white,
                             ),
                             Text(
