@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "127813002960",
+    "project_id": "jose-35ba3",
+    "storage_bucket": "jose-35ba3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:127813002960:android:2dafea14f67efee1eba0d5",
+        "android_client_info": {
+          "package_name": "com.Syge.JoSE"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "127813002960-k9gr4hul4p6hv6b46j2u6ag4i0l0btd5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCeet5bcvL6r2LP75AUzWRaKfS0EljWGrA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "127813002960-k9gr4hul4p6hv6b46j2u6ag4i0l0btd5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:127813002960:android:e3595c6cd1a92197eba0d5",
+        "android_client_info": {
+          "package_name": "com.example.driving_school_mobile_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "127813002960-k9gr4hul4p6hv6b46j2u6ag4i0l0btd5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCeet5bcvL6r2LP75AUzWRaKfS0EljWGrA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "127813002960-k9gr4hul4p6hv6b46j2u6ag4i0l0btd5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

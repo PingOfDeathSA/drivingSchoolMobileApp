@@ -1,6 +1,7 @@
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:driving_school_mobile_app/colors.dart';
 import 'package:driving_school_mobile_app/pages/dashboard.dart';
+import 'package:driving_school_mobile_app/pages/todo.dart';
 import 'package:flutter/material.dart';
 
 import '../pages/learsons.dart';
@@ -29,10 +30,7 @@ class _BottomNavigationBarExampleState
           Dashboardpage(),
           BookingCalendar(),
           ProgressPage(),
-          Text(
-            'Index 3: School',
-            style: TextStyle(fontSize: 30),
-          ), // Page for index 3
+          TodoPage(),
         ],
       ),
       bottomNavigationBar: CurvedNavigationBar(

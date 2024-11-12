@@ -1,16 +1,34 @@
-import 'package:driving_school_mobile_app/backend/data.dart';
 import 'package:driving_school_mobile_app/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ProgressPage extends StatelessWidget {
-  // Example data for the lessons
+  // Fetch user lessons from Firebase Firestore
+  Future<List<Map<String, dynamic>>> fetchUserLessons() async {
+    try {
+      // Fetch data from the 'userLessons' collection
+      QuerySnapshot snapshot =
+          await FirebaseFirestore.instance.collection('usersLessons').get();
+
+      // Convert the data into a list of maps
+      List<Map<String, dynamic>> lessons = snapshot.docs
+          .map((doc) => doc.data() as Map<String, dynamic>)
+          .toList();
+
+      return lessons;
+    } catch (e) {
+      print('Error fetching lessons: $e');
+      return [];
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    List<LinearGaugeRange> generateRanges() {
+    List<LinearGaugeRange> generateRanges(
+        List<Map<String, dynamic>> userLessons) {
       List<LinearGaugeRange> ranges = [];
-      for (int i = 0; i < usersLessons.length; i++) {
+      for (int i = 0; i < userLessons.length; i++) {
         ranges.add(
           LinearGaugeRange(
             midWidth: 70,
@@ -18,9 +36,9 @@ class ProgressPage extends StatelessWidget {
             rangeShapeType: LinearRangeShapeType.curve,
             startValue: i.toDouble(),
             endValue: (i + 1).toDouble(),
-            color: usersLessons[i]['status'] == 'pending'
+            color: userLessons[i]['status'] == 'pending'
                 ? Colors.orange
-                : usersLessons[i]['status'] == 'missed'
+                : userLessons[i]['status'] == 'missed'
                     ? redcolor
                     : greenColor,
             startWidth: 10,
@@ -29,24 +47,22 @@ class ProgressPage extends StatelessWidget {
               onTap: () {
                 _showBuyNowModal(
                   context,
-                  usersLessons[i]['date'].toString(),
-                  usersLessons[i]['time'].toString(),
-                  usersLessons[i]['status'].toString(),
-                  usersLessons[i]['instructor'].toString(),
-                  usersLessons[i]['course'].toString(),
-                  usersLessons[i]['duration'].toString(),
-                  usersLessons[i]['location'].toString(),
-                  usersLessons[i]['student'].toString(),
-                  usersLessons[i]['lesson_type'].toString(),
-                );
-                print(
-                  usersLessons[i]['date'].toString(),
+                  // Use the context from the build method
+                  userLessons[i]['date'].toString(),
+                  userLessons[i]['time'].toString(),
+                  userLessons[i]['status'].toString(),
+                  userLessons[i]['instructor'].toString(),
+                  userLessons[i]['course'].toString(),
+                  userLessons[i]['duration'].toString(),
+                  userLessons[i]['location'].toString(),
+                  userLessons[i]['student'].toString(),
+                  userLessons[i]['lesson_type'].toString(),
                 );
               },
               child: Padding(
                 padding: const EdgeInsets.all(3.0),
                 child: Center(
-                  child: usersLessons[i]['status'] == 'pending'
+                  child: userLessons[i]['status'] == 'pending'
                       ? Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,
@@ -61,7 +77,7 @@ class ProgressPage extends StatelessWidget {
                             ),
                           ],
                         )
-                      : usersLessons[i]['status'] == 'missed'
+                      : userLessons[i]['status'] == 'missed'
                           ? Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.center,
@@ -104,25 +120,42 @@ class ProgressPage extends StatelessWidget {
         title: Text('Lesson Progress'),
         backgroundColor: lightgray,
       ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            'Your Lesson Progress',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          SfLinearGauge(
-            minorTicksPerInterval: 0,
-            useRangeColorForAxis: true,
-            animateAxis: true,
-            axisTrackStyle: LinearAxisTrackStyle(thickness: 1),
-            minimum: 0,
-            maximum: usersLessons.length.toDouble(),
-            interval: 1,
-            animationDuration: 1000,
-            ranges: generateRanges(),
-          ),
-        ],
+      body: FutureBuilder<List<Map<String, dynamic>>>(
+        future: fetchUserLessons(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          }
+
+          if (snapshot.hasError ||
+              !snapshot.hasData ||
+              snapshot.data!.isEmpty) {
+            return Center(child: Text('Error loading user lessons'));
+          }
+
+          List<Map<String, dynamic>> userLessons = snapshot.data!;
+
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'Your Lesson Progress',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              SfLinearGauge(
+                minorTicksPerInterval: 0,
+                useRangeColorForAxis: true,
+                animateAxis: true,
+                axisTrackStyle: LinearAxisTrackStyle(thickness: 1),
+                minimum: 0,
+                maximum: userLessons.length.toDouble(),
+                interval: 1,
+                animationDuration: 1000,
+                ranges: generateRanges(userLessons),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -162,7 +195,7 @@ class ProgressPage extends StatelessWidget {
                   children: [
                     SelectableText(
                       textAlign: TextAlign.center,
-                      'Staus: $status',
+                      'Status: $status',
                     ),
                     SelectableText(
                       textAlign: TextAlign.center,
