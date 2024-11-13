@@ -23,7 +23,11 @@ class LoginScreen extends StatelessWidget {
         // If the user exists, route to BottomNavigationBarExample
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => BottomNavigationBarExample()),
+          MaterialPageRoute(builder: (context) => BottomNavigationBarExample(
+            useremail : user.email.toString(),
+            username : userDoc.get('name'), // Passing the user's name to the home screen
+            
+          )),
         );
       } else {
         // If the user doesn't exist, route to the Profile page

@@ -8,7 +8,13 @@ import '../pages/learsons.dart';
 import '../pages/user_progress.dart';
 
 class BottomNavigationBarExample extends StatefulWidget {
-  const BottomNavigationBarExample({super.key});
+  final String username;
+  final String useremail;
+  const BottomNavigationBarExample({
+    super.key,
+    required this.username,
+    required this.useremail,
+  });
 
   @override
   State<BottomNavigationBarExample> createState() =>
@@ -23,11 +29,15 @@ class _BottomNavigationBarExampleState
 
   @override
   Widget build(BuildContext context) {
+    print('user name is ' + widget.username);
     return Scaffold(
       body: IndexedStack(
         index: _page, // Display page based on the selected index
         children: <Widget>[
-          Dashboardpage(),
+          Dashboardpage(
+            username: widget.username,
+            useremail: widget.useremail,
+          ),
           BookingCalendar(),
           ProgressPage(),
           TodoPage(),

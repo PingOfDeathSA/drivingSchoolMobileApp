@@ -9,7 +9,10 @@ import '../authentication/google_sign_in.dart';
 import '../backend/data.dart';
 
 class Dashboardpage extends StatefulWidget {
-  const Dashboardpage({super.key});
+  final String username;
+  final String useremail;
+  const Dashboardpage(
+      {super.key, required this.username, required this.useremail});
 
   @override
   State<Dashboardpage> createState() => _DashboardpageState();
@@ -70,7 +73,7 @@ class _DashboardpageState extends State<Dashboardpage> {
                   }
                 },
                 child: Text(
-                  'RN',
+                  widget.username.split(' ').map((e) => e[0]).take(2).join(),
                   style: TextStyle(color: Colors.white),
                 ),
               ),
@@ -121,7 +124,7 @@ class _DashboardpageState extends State<Dashboardpage> {
                       final package = packages[index];
                       return GestureDetector(
                         onTap: () {
-                          print(index);
+                          //   print(index);
                         },
                         child: Container(
                           margin: EdgeInsets.symmetric(
@@ -221,6 +224,8 @@ class _DashboardpageState extends State<Dashboardpage> {
                                       MaterialPageRoute(
                                         builder: (context) => ViewPackages(
                                           package: package,
+                                          useremail: widget.useremail,
+                                          username: widget.username,
                                         ),
                                       ),
                                     );
@@ -383,6 +388,8 @@ class _DashboardpageState extends State<Dashboardpage> {
                                           MaterialPageRoute(
                                             builder: (context) => ViewPackages(
                                               package: package,
+                                              useremail: widget.useremail,
+                                              username: widget.username,
                                             ),
                                           ),
                                         );

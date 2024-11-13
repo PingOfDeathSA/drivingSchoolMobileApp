@@ -17,25 +17,42 @@ class _ProfilePageState extends State<ProfilePage> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
 
-  // Save the user profile to Firestore
+  // Save or update the user profile in Firestore
   Future<void> saveProfile() async {
     try {
       // Get the Firestore collection
       final usersCollection =
           FirebaseFirestore.instance.collection('learnersProfile');
 
-      // Create a user document with the UID as the document ID
-      await usersCollection.doc(widget.user.uid).set({
-        'name': _nameController.text,
-        'phone': _phoneController.text,
-        'email': widget.user.email,
-        'uid': widget.user.uid,
-      });
+      // Check if a document already exists for this user UID
+      final userDoc = await usersCollection.doc(widget.user.uid).get();
+
+      if (userDoc.exists) {
+        // Update the existing document
+        await usersCollection.doc(widget.user.uid).update({
+          'name': widget.user.displayName,
+          'phone': _phoneController.text,
+          'email': widget.user.email,
+          'uid': widget.user.uid,
+        });
+      } else {
+        // Create a new document
+        await usersCollection.doc(widget.user.uid).set({
+          'name': widget.user.displayName,
+          'phone': _phoneController.text,
+          'email': widget.user.email,
+          'uid': widget.user.uid,
+        });
+      }
 
       // After saving, navigate to the home screen
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => BottomNavigationBarExample()),
+        MaterialPageRoute(
+            builder: (context) => BottomNavigationBarExample(
+                  useremail: widget.user.email.toString(),
+                  username: widget.user.displayName ?? '',
+                )),
       );
     } catch (e) {
       print("Error saving profile: $e");
@@ -53,16 +70,16 @@ class _ProfilePageState extends State<ProfilePage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              TextFormField(
-                controller: _nameController,
-                decoration: InputDecoration(labelText: "Name"),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "Please enter your name";
-                  }
-                  return null;
-                },
-              ),
+              // TextFormField(
+              //   controller: _nameController,
+              //   decoration: InputDecoration(labelText: ""),
+              //   validator: (value) {
+              //     if (value == null || value.isEmpty) {
+              //       return "Please enter your name";
+              //     }
+              //     return null;
+              //   },
+              // ),
               TextFormField(
                 controller: _phoneController,
                 decoration: InputDecoration(labelText: "Phone Number"),

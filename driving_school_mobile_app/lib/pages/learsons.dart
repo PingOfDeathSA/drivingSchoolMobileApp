@@ -226,7 +226,7 @@ class _BookingCalendarState extends State<BookingCalendar> {
                         String timeSlot = data['time'];
                         String schoolName = data['school'];
                         drivingSchools[timeSlot] = schoolName;
-                        print(drivingSchools);
+                        //  print(drivingSchools);
                       }
                     }
 
@@ -312,7 +312,7 @@ class _BookingCalendarState extends State<BookingCalendar> {
             }
 
             // Debugging: Print the snapshot data
-            print('Snapshot Data: ${snapshot.data!.docs}');
+            //   print('Snapshot Data: ${snapshot.data!.docs}');
 
             // Iterate over all documents to find the matching driving school
             String drivingSchoolName = 'Unknown School';

@@ -20,7 +20,10 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       home: FirebaseAuth.instance.currentUser == null
           ? LoginScreen()
-          : BottomNavigationBarExample(),
+          : BottomNavigationBarExample(
+              useremail: FirebaseAuth.instance.currentUser!.email.toString(),
+              username: FirebaseAuth.instance.currentUser?.displayName ?? '',
+            ),
     );
   }
 }

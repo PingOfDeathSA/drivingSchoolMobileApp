@@ -1,9 +1,19 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:driving_school_mobile_app/colors.dart';
+import 'package:driving_school_mobile_app/navigator%20%20menu/nav.dart';
 import 'package:flutter/material.dart';
 
 class ViewPackages extends StatefulWidget {
   final Map<String, dynamic> package;
-  const ViewPackages({super.key, required this.package});
+  final String username;
+  final String useremail;
+
+  const ViewPackages({
+    super.key,
+    required this.package,
+    required this.username,
+    required this.useremail,
+  });
 
   @override
   State<ViewPackages> createState() => _ViewPackagesState();
@@ -35,9 +45,7 @@ class _ViewPackagesState extends State<ViewPackages> {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   GestureDetector(
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
+                    onTap: _addPackageOrder,
                     child: Container(
                       padding: EdgeInsets.all(10),
                       decoration: BoxDecoration(
@@ -75,6 +83,45 @@ class _ViewPackagesState extends State<ViewPackages> {
     );
   }
 
+  Future<void> _addPackageOrder() async {
+    try {
+      // Access the Firestore collection
+      final packageOrdersCollection =
+          FirebaseFirestore.instance.collection('packageOrders');
+
+      // Create a new document with user email as ID
+      await packageOrdersCollection.doc().set({
+        'name': widget.package['name'],
+        'price': widget.package['price'],
+        'description': widget.package['description'],
+        'email': widget.useremail,
+        'username': widget.username,
+        'uid': widget.useremail,
+      });
+
+      // Show success message and navigate back to the home screen
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Package order added successfully!')),
+      );
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => BottomNavigationBarExample(
+            useremail: widget.useremail,
+            username: widget.username,
+          ),
+        ),
+      );
+    } catch (e) {
+      print("Error saving order: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text('Error: Could not add order. Please try again.')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -91,7 +138,7 @@ class _ViewPackagesState extends State<ViewPackages> {
                 borderRadius: BorderRadius.circular(50),
               ),
               child: Text(
-                'RN',
+                'RN', // Display initials
                 style: TextStyle(color: Colors.white),
               ),
             ),
