@@ -4,6 +4,8 @@ import 'package:driving_school_mobile_app/pages/view_packages.dart';
 import 'package:flutter/material.dart';
 import 'package:card_swiper/card_swiper.dart';
 
+import '../authentication/auth_service.dart';
+import '../authentication/google_sign_in.dart';
 import '../backend/data.dart';
 
 class Dashboardpage extends StatefulWidget {
@@ -14,6 +16,8 @@ class Dashboardpage extends StatefulWidget {
 }
 
 class _DashboardpageState extends State<Dashboardpage> {
+  final AuthService _authService = AuthService();
+
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
   @override
   Widget build(BuildContext context) {
@@ -27,12 +31,48 @@ class _DashboardpageState extends State<Dashboardpage> {
             Container(
               padding: EdgeInsets.all(6),
               decoration: BoxDecoration(
-                color: customblack,
+                color: Colors.black, // Custom color for the container
                 borderRadius: BorderRadius.circular(50),
               ),
-              child: Text(
-                'RN',
-                style: TextStyle(color: Colors.white),
+              child: GestureDetector(
+                onTap: () async {
+                  // Show confirmation dialog
+                  bool shouldSignOut = await showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text("Sign Out"),
+                            content: Text("Are you sure you want to sign out?"),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.of(context)
+                                    .pop(false), // Cancel sign-out
+                                child: Text("Cancel"),
+                              ),
+                              TextButton(
+                                onPressed: () => Navigator.of(context)
+                                    .pop(true), // Confirm sign-out
+                                child: Text("Yes"),
+                              ),
+                            ],
+                          );
+                        },
+                      ) ??
+                      false; // Default to false if dialog is dismissed
+
+                  // If confirmed, sign out and navigate to the login screen
+                  if (shouldSignOut) {
+                    await _authService.signOut();
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => LoginScreen()),
+                    );
+                  }
+                },
+                child: Text(
+                  'RN',
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
             ),
           ],

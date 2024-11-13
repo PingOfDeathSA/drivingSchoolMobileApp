@@ -1,6 +1,9 @@
 import 'package:driving_school_mobile_app/navigator%20%20menu/nav.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+
+import 'authentication/google_sign_in.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,7 +18,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: BottomNavigationBarExample(),
+      home: FirebaseAuth.instance.currentUser == null
+          ? LoginScreen()
+          : BottomNavigationBarExample(),
     );
   }
 }

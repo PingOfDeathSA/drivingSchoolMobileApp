@@ -24,7 +24,7 @@ Widget getUpComingLessons(BuildContext context, FirebaseFirestore firestore) {
                   getAllMissedLessons(context, firestore);
                 },
                 child: Container(
-                  padding: EdgeInsets.all(4),
+                  padding: EdgeInsets.all(6),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(50),
                     color: lightgray,
@@ -289,7 +289,7 @@ Widget getAllPackages(BuildContext context, FirebaseFirestore firestore) {
           children: [
             Text('All Packages'),
             Container(
-              padding: EdgeInsets.all(4),
+              padding: EdgeInsets.all(6),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(50),
                 color: lightgray,
