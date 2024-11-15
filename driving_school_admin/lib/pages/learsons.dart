@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:driving_school_mobile_app/colors.dart';
-
+import 'package:intl/intl.dart';
 import '../components/dashboardComponents.dart';
 
 class BookingCalendar extends StatefulWidget {
@@ -19,6 +19,8 @@ class _BookingCalendarState extends State<BookingCalendar> {
   late bool showBookedAndAvailableSlots = false;
 
   List<String> disabledDays = ['Sunday'];
+
+  late int totalSlotsBooked = 0;
 
   @override
   void initState() {
@@ -116,6 +118,8 @@ class _BookingCalendarState extends State<BookingCalendar> {
                   String dayStr = day.toIso8601String().split('T')[0];
                   int availableSlots = _getAvailableSlotsCount(dayStr);
 
+                  totalSlotsBooked = 8 - availableSlots;
+
                   return Stack(
                     alignment: Alignment.center,
                     children: [
@@ -159,6 +163,14 @@ class _BookingCalendarState extends State<BookingCalendar> {
               ),
             ),
           ),
+          SizedBox(height: 10),
+          _selectedDay != null
+              ? Text(
+                  'Slots for ${DateFormat('d MMMM yyyy').format(_selectedDay!)} ',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                )
+              : Text(''),
+          SizedBox(height: 10),
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
