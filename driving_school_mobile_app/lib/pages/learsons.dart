@@ -4,6 +4,11 @@ import 'package:table_calendar/table_calendar.dart';
 import 'package:driving_school_mobile_app/colors.dart';
 
 class BookingCalendar extends StatefulWidget {
+  final String username;
+  final String useremail;
+  const BookingCalendar(
+      {super.key, required this.username, required this.useremail});
+
   @override
   _BookingCalendarState createState() => _BookingCalendarState();
 }

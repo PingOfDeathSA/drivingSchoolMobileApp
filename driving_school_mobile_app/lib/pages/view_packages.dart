@@ -85,34 +85,56 @@ class _ViewPackagesState extends State<ViewPackages> {
 
   Future<void> _addPackageOrder() async {
     try {
-      // Access the Firestore collection
+      // Access the Firestore collection for package orders
       final packageOrdersCollection =
           FirebaseFirestore.instance.collection('packageOrders');
 
-      // Create a new document with user email as ID
-      await packageOrdersCollection.doc().set({
-        'name': widget.package['name'],
-        'price': widget.package['price'],
-        'description': widget.package['description'],
-        'email': widget.useremail,
-        'username': widget.username,
-        'uid': widget.useremail,
-      });
+      // Query the user's profile document by email
+      try {
+        final QuerySnapshot leanersProfileSnapshot = await FirebaseFirestore
+            .instance
+            .collection('learnersProfile')
+            .where('email', isEqualTo: widget.useremail)
+            .get();
 
-      // Show success message and navigate back to the home screen
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Package order added successfully!')),
-      );
+        if (leanersProfileSnapshot.docs.isNotEmpty) {
+          final data =
+              leanersProfileSnapshot.docs.first.data() as Map<String, dynamic>;
+          print(data[
+              'phone']); // This will print the phone field from the document
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => BottomNavigationBarExample(
-            useremail: widget.useremail,
-            username: widget.username,
-          ),
-        ),
-      );
+          // Create a new document in packageOrders
+          await packageOrdersCollection.doc().set({
+            'name': widget.package['name'],
+            'price': widget.package['price'],
+            'description': widget.package['description'],
+            'email': widget.useremail,
+            'username': widget.username,
+            'uid': widget.useremail,
+            'paid': false,
+            'phone': data['phone'],
+          });
+
+          // Show success message and navigate back to the home screen
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Package order added successfully!')),
+          );
+
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => BottomNavigationBarExample(
+                useremail: widget.useremail,
+                username: widget.username,
+              ),
+            ),
+          );
+        } else {
+          print("Document does not exist");
+        }
+      } catch (e) {
+        print("Error retrieving contacts: $e");
+      }
     } catch (e) {
       print("Error saving order: $e");
       ScaffoldMessenger.of(context).showSnackBar(

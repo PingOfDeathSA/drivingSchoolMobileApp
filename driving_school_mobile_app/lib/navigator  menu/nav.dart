@@ -1,6 +1,7 @@
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:driving_school_mobile_app/colors.dart';
 import 'package:driving_school_mobile_app/pages/dashboard.dart';
+import 'package:driving_school_mobile_app/pages/my_orders.dart';
 import 'package:driving_school_mobile_app/pages/todo.dart';
 import 'package:flutter/material.dart';
 
@@ -38,7 +39,10 @@ class _BottomNavigationBarExampleState
             username: widget.username,
             useremail: widget.useremail,
           ),
-          BookingCalendar(),
+          my_orders(
+            username: widget.username,
+            useremail: widget.useremail,
+          ),
           ProgressPage(),
           TodoPage(),
         ],
