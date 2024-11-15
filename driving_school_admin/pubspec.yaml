@@ -44,6 +44,7 @@ dependencies:
   cloud_firestore: ^5.4.5
   easy_sidemenu: ^0.6.0
   fl_chart: ^0.69.0
+  syncfusion_flutter_datagrid: ^27.1.58
   
 
 dev_dependencies:

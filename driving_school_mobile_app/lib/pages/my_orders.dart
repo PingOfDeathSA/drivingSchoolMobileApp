@@ -107,7 +107,7 @@ class _my_ordersState extends State<my_orders> {
                     final description = lesson['description'] ?? 'No Title';
                     final price = lesson['price'] ?? 'No Date';
                     final packagename = lesson['name'] ?? 'No Time';
-                    final location = lesson['email'] ?? 'No Location';
+                    final lessons = lesson['lessons'] ?? 'No Location';
 
                     final paid = lesson['paid'] ?? 'No Paid';
 
@@ -148,6 +148,7 @@ class _my_ordersState extends State<my_orders> {
                                               MaterialPageRoute(
                                                 builder: (context) =>
                                                     BookingCalendar(
+                                                      numberoflessons: lessons,
                                                   username: widget.username,
                                                   useremail: widget.useremail,
                                                 ),

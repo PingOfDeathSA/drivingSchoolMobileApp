@@ -7,147 +7,159 @@ import 'package:intl/intl.dart';
 
 import '../navigator  menu/nav.dart';
 
-Widget getUpComingLessons(BuildContext context, FirebaseFirestore firestore) {
+Widget getUpComingLessons(
+    BuildContext context, FirebaseFirestore firestore, double customwidth) {
   return Container(
+    height: 450,
     decoration: BoxDecoration(
       borderRadius: BorderRadius.circular(0),
     ),
-    width: MediaQuery.of(context).size.width / 2.5,
-    child: Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text('Upcoming Lessons (Today + Next 3 Days)'),
-            GestureDetector(
-                onTap: () {
-                  getAllMissedLessons(context, firestore);
-                },
-                child: Container(
-                  padding: EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(50),
-                    color: lightgray,
-                    border: Border.all(color: bluecolor),
-                  ),
-                  child: Text(
-                    'View All Missed Lessons',
-                    style: TextStyle(
-                        color: bluecolor,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 10), // Optional styling
-                  ),
-                )),
-          ],
-        ),
-        SizedBox(height: 10),
-        StreamBuilder(
-          stream: firestore.collection('bookedLessons').snapshots(),
-          builder:
-              (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-            if (!snapshot.hasData) {
-              return Center(
-                child: CircularProgressIndicator(),
-              );
-            }
-
-            // Define the current date and the end date (next 3 days)
-            DateTime today = DateTime.now();
-            DateTime endDate = today.add(Duration(days: 3));
-            DateFormat dateFormat = DateFormat('yyyy-MM-dd');
-            DateFormat displayFormat = DateFormat('dd MMM- yyyy');
-
-            // Filter and sort documents within the specified date range
-            List<DocumentSnapshot> upcomingLessons =
-                snapshot.data!.docs.where((lesson) {
-              String lessonDateStr = lesson['date'];
-              DateTime lessonDate = dateFormat.parse(lessonDateStr);
-
-              // Check if lesson date is within today and the next 3 days
-              return lessonDate.isAfter(today.subtract(Duration(days: 1))) &&
-                  lessonDate.isBefore(endDate.add(Duration(days: 1)));
-            }).toList();
-
-            // Sort lessons by date in ascending order (most recent first)
-            upcomingLessons.sort((a, b) {
-              DateTime dateA = dateFormat.parse(a['date']);
-              DateTime dateB = dateFormat.parse(b['date']);
-              return dateA.compareTo(dateB);
-            });
-
-            if (upcomingLessons.isEmpty) {
-              return Center(
-                  child: Text("No lessons for today or the next 3 days"));
-            }
-
-            return ListView.builder(
-              shrinkWrap: true,
-              itemCount: upcomingLessons.length,
-              itemBuilder: (context, index) {
-                DocumentSnapshot lesson = upcomingLessons[index];
-
-                // Parse the date and format it as "13 Nov- 2024"
-                DateTime lessonDate = dateFormat.parse(lesson['date']);
-                String formattedDate = displayFormat.format(lessonDate);
-
-                return Container(
-                  margin: EdgeInsets.only(bottom: 10),
-                  decoration: BoxDecoration(
-                    color: lightgray,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
+    width: customwidth,
+    child: SingleChildScrollView(
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Upcoming Lessons',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              GestureDetector(
+                  onTap: () {
+                    getAllMissedLessons(context, firestore);
+                  },
                   child: Container(
-                    width: MediaQuery.of(context).size.width,
-                    padding: EdgeInsets.all(10),
-                    child: Column(
-                      children: [
-                        Row(
-                          children: [
-                            Text(lesson['student']),
-                            Text(" will attend lesson ${lesson['lessons']}"),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Text("Location: ${lesson['location']}"),
-                          ],
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text("Date $formattedDate at ${lesson['time']}"),
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Text(
-                                  "${lesson['status'][0].toUpperCase()}${lesson['status'].substring(1)} at ${lesson['time']}",
-                                ),
-                                lesson['status'] == 'pending'
-                                    ? Icon(
-                                        Icons.pending_actions_outlined,
-                                        color: Colors.orange,
-                                      )
-                                    : lesson['status'] == 'completed'
-                                        ? Icon(
-                                            Icons.check_circle_outlined,
-                                            color: greenColor,
-                                          )
-                                        : Icon(Icons.cancel_outlined,
-                                            color: redcolor),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ],
+                    padding: EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(50),
+                      color: lightgray,
+                      border: Border.all(color: greenColor.withOpacity(0.5)),
                     ),
-                  ),
+                    child: Text(
+                      'View All Missed Lessons',
+                      style: TextStyle(
+                          color: greenColor,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 10), // Optional styling
+                    ),
+                  )),
+            ],
+          ),
+          SizedBox(height: 10),
+          StreamBuilder(
+            stream: firestore.collection('bookedLessons').snapshots(),
+            builder:
+                (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+              if (!snapshot.hasData) {
+                return Center(
+                  child: CircularProgressIndicator(),
                 );
-              },
-            );
-          },
-        ),
-      ],
+              }
+
+              // Define the current date and the end date (next 3 days)
+              DateTime today = DateTime.now();
+              DateTime endDate = today.add(Duration(days: 3));
+              DateFormat dateFormat = DateFormat('yyyy-MM-dd');
+              DateFormat displayFormat = DateFormat('dd MMM- yyyy');
+
+              // Filter and sort documents within the specified date range
+              List<DocumentSnapshot> upcomingLessons =
+                  snapshot.data!.docs.where((lesson) {
+                String lessonDateStr = lesson['date'];
+                DateTime lessonDate = dateFormat.parse(lessonDateStr);
+
+                // Check if lesson date is within today and the next 3 days
+                return lessonDate.isAfter(today.subtract(Duration(days: 1))) &&
+                    lessonDate.isBefore(endDate.add(Duration(days: 1)));
+              }).toList();
+
+              // Sort lessons by date in ascending order (most recent first)
+              upcomingLessons.sort((a, b) {
+                DateTime dateA = dateFormat.parse(a['date']);
+                DateTime dateB = dateFormat.parse(b['date']);
+                return dateA.compareTo(dateB);
+              });
+
+              if (upcomingLessons.isEmpty) {
+                return Center(
+                    child: Text("No lessons for today or the next 3 days"));
+              }
+
+              return ListView.builder(
+                shrinkWrap: true,
+                itemCount: upcomingLessons.length,
+                itemBuilder: (context, index) {
+                  DocumentSnapshot lesson = upcomingLessons[index];
+
+                  // Parse the date and format it as "13 Nov- 2024"
+                  DateTime lessonDate = dateFormat.parse(lesson['date']);
+                  String formattedDate = displayFormat.format(lessonDate);
+
+                  return Container(
+                    margin: EdgeInsets.only(bottom: 10),
+                    decoration: BoxDecoration(
+                      color: lightgray,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Container(
+                      width: MediaQuery.of(context).size.width,
+                      padding: EdgeInsets.all(10),
+                      child: Column(
+                        children: [
+                          Row(
+                            children: [
+                              Text(lesson['student']),
+                              Text(" will attend lesson ${lesson['lessons']}"),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Text("Location: ${lesson['location']}"),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text("Date $formattedDate at ${lesson['time']}"),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    "${lesson['status'][0].toUpperCase()}${lesson['status'].substring(1)} at ${lesson['time']}",
+                                  ),
+                                  lesson['status'] == 'pending'
+                                      ? Icon(
+                                          Icons.pending_actions_outlined,
+                                          color: Colors.orange,
+                                        )
+                                      : lesson['status'] == 'completed'
+                                          ? Icon(
+                                              Icons.check_circle_outlined,
+                                              color: greenColor,
+                                            )
+                                          : Icon(Icons.cancel_outlined,
+                                              color: redcolor),
+                                ],
+                              ),
+                            ],
+                          )
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
+          ),
+        ],
+      ),
     ),
   );
 }
@@ -276,192 +288,198 @@ Future<void> getAllMissedLessons(
   );
 }
 
-Widget getAllPackages(BuildContext context, FirebaseFirestore firestore) {
+Widget getAllPackages(
+    BuildContext context, FirebaseFirestore firestore, double customwidth) {
   return Container(
+    height: 450,
     decoration: BoxDecoration(
       borderRadius: BorderRadius.circular(0),
     ),
-    width: MediaQuery.of(context).size.width / 4.5,
-    child: Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text('All Packages'),
-            Container(
-              padding: EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(50),
-                color: lightgray,
-                border: Border.all(color: bluecolor),
-              ),
-              child: GestureDetector(
-                onTap: () {
-                  showAddPackageBottomSheet(context, firestore);
-                },
-                child: Text(
-                  'Add New Package',
-                  style: TextStyle(
-                      color: bluecolor,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 10), // Optional styling
+    width: customwidth,
+    child: SingleChildScrollView(
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('All Packages',
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              Container(
+                padding: EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(50),
+                  color: lightgray,
+                  border: Border.all(color: greenColor.withOpacity(0.5)),
+                ),
+                child: GestureDetector(
+                  onTap: () {
+                    showAddPackageBottomSheet(context, firestore);
+                  },
+                  child: Text(
+                    'Add New Package',
+                    style: TextStyle(
+                        color: greenColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 10), // Optional styling
+                  ),
                 ),
               ),
-            ),
-          ],
-        ),
-        SizedBox(height: 10),
-        StreamBuilder(
-          stream: firestore.collection('packages').snapshots(),
-          builder:
-              (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-            if (!snapshot.hasData) {
-              return Center(
-                child: CircularProgressIndicator(),
-              );
-            }
-
-            List<DocumentSnapshot> pages = snapshot.data!.docs;
-
-            if (pages.isEmpty) {
-              return Center(child: Text("No packages found"));
-            }
-
-            return ListView.builder(
-              shrinkWrap: true,
-              itemCount: pages.length,
-              itemBuilder: (context, index) {
-                DocumentSnapshot page = pages[index];
-                return Container(
-                  margin: EdgeInsets.only(bottom: 20),
-                  padding: EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: lightgray,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Column(
-                    children: [
-                      Container(
-                        child: Column(
-                          children: [
-                            Text(
-                              "Package Name: ",
-                              style: TextStyle(
-                                  color: customblack,
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                            Text(page['name'].toString()),
-                          ],
-                        ),
-                      ),
-                      Container(
-                        padding: EdgeInsets.only(top: 5),
-                        child: Column(
-                          children: [
-                            Text(
-                              "Description: ",
-                              style: TextStyle(
-                                  color: customblack,
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                            Text(
-                              "${page['description'].toString()}",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w100,
-                                  color: customblack.withOpacity(0.7)),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 10),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text("Original Price: ${page['price'].toString()}",
-                              style: TextStyle(color: redcolor)),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text("Sale Price: ${page['sale_price'].toString()}",
-                              style: TextStyle(color: greenColor)),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              // Show confirmation dialog before deleting
-                              showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    title: Text('Confirm Delete'),
-                                    content: Text(
-                                        'Are you sure you want to delete this package?'),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.of(context)
-                                              .pop(); // Close the dialog
-                                        },
-                                        child: Text('Cancel'),
-                                      ),
-                                      TextButton(
-                                        onPressed: () {
-                                          // Delete the package
-                                          firestore
-                                              .collection('packages')
-                                              .doc(page.id)
-                                              .delete()
-                                              .then((_) {
-                                            ScaffoldMessenger.of(context)
-                                                .showSnackBar(
-                                              SnackBar(
-                                                content: Text(
-                                                    'Package deleted successfully'),
-                                                backgroundColor:
-                                                    greenColor, // Green for success
-                                              ),
-                                            );
-                                          });
-
-                                          Navigator.of(context)
-                                              .pop(); // Close the dialog
-                                        },
-                                        child: Text('Delete'),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              );
-                            },
-                            child: Icon(Icons.delete_outlined, color: redcolor),
-                          ),
-                          SizedBox(width: 10),
-                          GestureDetector(
-                            onTap: () =>
-                                showUpdateBottomSheet(context, firestore, page),
-                            child: Icon(
-                              Icons.edit_outlined,
-                              color: greenColor,
-                            ),
-                          ),
-                          SizedBox(width: 10),
-                        ],
-                      ),
-                    ],
-                  ),
+            ],
+          ),
+          SizedBox(height: 10),
+          StreamBuilder(
+            stream: firestore.collection('packages').snapshots(),
+            builder:
+                (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+              if (!snapshot.hasData) {
+                return Center(
+                  child: CircularProgressIndicator(),
                 );
-              },
-            );
-          },
-        ),
-      ],
+              }
+
+              List<DocumentSnapshot> pages = snapshot.data!.docs;
+
+              if (pages.isEmpty) {
+                return Center(child: Text("No packages found"));
+              }
+
+              return ListView.builder(
+                shrinkWrap: true,
+                itemCount: pages.length,
+                itemBuilder: (context, index) {
+                  DocumentSnapshot page = pages[index];
+                  return Container(
+                    margin: EdgeInsets.only(bottom: 20),
+                    padding: EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: lightgray,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Column(
+                      children: [
+                        Container(
+                          child: Row(
+                            children: [
+                              Text(
+                                "Package Name: ",
+                                style: TextStyle(
+                                    color: customblack,
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.normal),
+                              ),
+                              Text(page['name'].toString()),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          padding: EdgeInsets.only(top: 5),
+                          child: Row(
+                            children: [
+                              Text(
+                                "Description: ",
+                                style: TextStyle(
+                                    color: customblack,
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.normal),
+                              ),
+                              Text(
+                                "${page['description'].toString()}",
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w100,
+                                    color: customblack.withOpacity(0.7)),
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Text("Original Price: ${page['price'].toString()}",
+                                style: TextStyle(color: redcolor)),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text("Sale Price: ${page['sale_price'].toString()}",
+                                style: TextStyle(color: greenColor)),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                GestureDetector(
+                                  onTap: () {
+                                    // Show confirmation dialog before deleting
+                                    showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return AlertDialog(
+                                          title: Text('Confirm Delete'),
+                                          content: Text(
+                                              'Are you sure you want to delete this package?'),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () {
+                                                Navigator.of(context)
+                                                    .pop(); // Close the dialog
+                                              },
+                                              child: Text('Cancel'),
+                                            ),
+                                            TextButton(
+                                              onPressed: () {
+                                                // Delete the package
+                                                firestore
+                                                    .collection('packages')
+                                                    .doc(page.id)
+                                                    .delete()
+                                                    .then((_) {
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(
+                                                    SnackBar(
+                                                      content: Text(
+                                                          'Package deleted successfully'),
+                                                      backgroundColor:
+                                                          greenColor, // Green for success
+                                                    ),
+                                                  );
+                                                });
+
+                                                Navigator.of(context)
+                                                    .pop(); // Close the dialog
+                                              },
+                                              child: Text('Delete'),
+                                            ),
+                                          ],
+                                        );
+                                      },
+                                    );
+                                  },
+                                  child: Icon(Icons.delete_outlined,
+                                      color: redcolor),
+                                ),
+                                SizedBox(width: 10),
+                                GestureDetector(
+                                  onTap: () => showUpdateBottomSheet(
+                                      context, firestore, page),
+                                  child: Icon(
+                                    Icons.edit_outlined,
+                                    color: greenColor,
+                                  ),
+                                ),
+                                SizedBox(width: 10),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              );
+            },
+          ),
+        ],
+      ),
     ),
   );
 }
@@ -472,6 +490,7 @@ void showAddPackageBottomSheet(
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController priceController = TextEditingController();
   final TextEditingController salePriceController = TextEditingController();
+  final TextEditingController numberOflessons = TextEditingController();
 
   showDialog(
     context: context,
@@ -519,7 +538,7 @@ void showAddPackageBottomSheet(
                 ),
               ),
               customTextfields(nameController, descriptionController,
-                  priceController, salePriceController),
+                  priceController, salePriceController, numberOflessons),
               SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -546,6 +565,8 @@ void showAddPackageBottomSheet(
                           'price': double.tryParse(priceController.text) ?? 0.0,
                           'sale_price':
                               double.tryParse(salePriceController.text) ?? 0.0,
+                          'number_of_lessons':
+                              int.tryParse(numberOflessons.text) ?? 0,
                         }).then((_) {
                           Navigator.pop(context); // Close the dialog
                           // Show success snackbar
@@ -595,6 +616,8 @@ void showUpdateBottomSheet(
       TextEditingController(text: page['price'].toString());
   final TextEditingController salePriceController =
       TextEditingController(text: page['sale_price'].toString());
+  final TextEditingController numberOflessons =
+      TextEditingController(text: page['number_of_lessons'].toString());
 
   showDialog(
     context: context,
@@ -641,7 +664,7 @@ void showUpdateBottomSheet(
                 ),
               ),
               customTextfields(nameController, descriptionController,
-                  priceController, salePriceController),
+                  priceController, salePriceController, numberOflessons),
               SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -680,6 +703,9 @@ void showUpdateBottomSheet(
                                       'sale_price': double.tryParse(
                                               salePriceController.text) ??
                                           0.0,
+                                      'number_of_lessons':
+                                          int.tryParse(numberOflessons.text) ??
+                                              0,
                                     }).then((_) {
                                       Navigator.push(
                                           context,
@@ -739,7 +765,8 @@ Widget customTextfields(
     TextEditingController nameController,
     TextEditingController descriptionController,
     TextEditingController priceController,
-    TextEditingController salePriceController) {
+    TextEditingController salePriceController,
+    TextEditingController numberOflessons) {
   return Column(
     children: [
       Padding(
@@ -867,6 +894,40 @@ Widget customTextfields(
             ),
           ),
           keyboardType: TextInputType.number,
+          inputFormatters: [
+            FilteringTextInputFormatter.digitsOnly,
+          ],
+        ),
+      ),
+      Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: TextField(
+          cursorColor: greenColor,
+          controller: numberOflessons,
+          decoration: InputDecoration(
+            hintText: 'Number of Lessons',
+            hintStyle: TextStyle(
+              color: greenColor,
+              fontSize: 15,
+              fontWeight: FontWeight.normal,
+            ),
+            filled: true,
+            fillColor: lightgray,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(color: lightgray, width: 1),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(color: lightgray, width: 1),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(color: lightgray, width: 1),
+            ),
+          ),
+          keyboardType: TextInputType.number,
+          maxLength: 2,
           inputFormatters: [
             FilteringTextInputFormatter.digitsOnly,
           ],

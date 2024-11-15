@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../backend/service.dart';
 import 'package:intl/intl.dart';
+import '../components/dashboardComponents.dart';
+import '../components/orders_table.dart';
 
 class Dashboardpage extends StatefulWidget {
   const Dashboardpage({super.key});
@@ -19,13 +21,16 @@ class _DashboardpageState extends State<Dashboardpage> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final double width = size.width;
     return Scaffold(
         appBar: AppBar(
+          backgroundColor: lightgray,
           centerTitle: true,
           title: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Menu'),
+              Text('Dashboard'),
               Container(
                 padding: EdgeInsets.all(6),
                 decoration: BoxDecoration(
@@ -46,14 +51,18 @@ class _DashboardpageState extends State<Dashboardpage> {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                SizedBox(
+                  height: 20,
+                ),
                 Wrap(
                   spacing: 10.0, // Space between items horizontally
                   runSpacing: 5.0, // Space between lines vertically
                   children: [
-                    TopContainers(greenColor, 'Registered Users', Colors.white),
-                    TopContainers(lightgray, 'Paid Users', customblack),
-                    TopContainers(customblack, 'Passed Users', Colors.white),
-                    TopContainers(bluecolor, 'Failed Users', Colors.white),
+                    TopContainers(greenColor, getallusers(), Colors.white),
+                    TopContainers(lightgray, getPaidUsers(), customblack),
+                    TopContainers(customblack, getallMissed(), Colors.white),
+                    TopContainers(
+                        bluecolor, getallAllCompletedlessons(), Colors.white),
                   ],
                 ),
                 SizedBox(
@@ -63,36 +72,37 @@ class _DashboardpageState extends State<Dashboardpage> {
                   spacing: 10.0, // Space between items horizontally
                   runSpacing: 5.0, // Space between lines vertically
                   children: [
-                    getUpComingLessons(context, firestore),
-                    getAllPackages(context, firestore),
+                    getUpComingLessons(
+                        context, firestore, width < 900 ? width : width / 2),
+                    getAllPackages(
+                        context, firestore, width < 900 ? width : width / 4.3),
                   ],
                 ),
+                SizedBox(
+                  height: 20,
+                ),
+                getallOrders(context),
               ],
             ),
           ),
         ));
   }
 
-  Widget TopContainers(customColor, String userType, Color textColor) {
+  Widget TopContainers(customColor, Widget Customwiget, Color textColor) {
     return Container(
       decoration: BoxDecoration(
-        color: customColor,
+        color: lightgray,
+        border: Border.all(
+          color: greenColor.withOpacity(0.4),
+          width: 1,
+        ),
         borderRadius: BorderRadius.circular(30),
       ),
       height: 150,
       width: MediaQuery.of(context).size.width / 5.5,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          Text(
-            textAlign: TextAlign.center,
-            userType,
-            style: TextStyle(
-              color: textColor,
-              fontSize: 20,
-            ),
-          ),
-        ],
+        children: [Customwiget],
       ),
     );
   }

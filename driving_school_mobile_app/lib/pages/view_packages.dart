@@ -113,6 +113,8 @@ class _ViewPackagesState extends State<ViewPackages> {
             'uid': widget.useremail,
             'paid': false,
             'phone': data['phone'],
+            'date': DateTime.now(),
+            'lessons': widget.package['number_of_lessons'],
           });
 
           // Show success message and navigate back to the home screen

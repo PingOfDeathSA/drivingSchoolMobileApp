@@ -157,22 +157,6 @@ class _BookingCalendarState extends State<BookingCalendar> {
               ),
             ),
           ),
-          Container(
-            width: double.infinity,
-            margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            decoration: BoxDecoration(
-              color: customblack,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            height: 50,
-            child: Center(
-              child: Text(
-                textAlign: TextAlign.center,
-                'Select a Time Slot for ${_selectedDay?.toLocal().toIso8601String().split("T")[0] ?? "No Date Selected"}',
-                style: TextStyle(color: lightgray),
-              ),
-            ),
-          ),
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
@@ -260,12 +244,7 @@ class _BookingCalendarState extends State<BookingCalendar> {
                                 : Icon(Icons.event_available,
                                     color: greenColor),
                             enabled: !isBooked,
-                            onTap: isBooked
-                                ? null
-                                : () {
-                                    _showBuyNowModal(
-                                        '$timeSlot - ${8 + index + 1}:00');
-                                  },
+                            onTap: isBooked ? null : null,
                           );
                         },
                       );
@@ -281,115 +260,6 @@ class _BookingCalendarState extends State<BookingCalendar> {
           ),
         ],
       ),
-    );
-  }
-
-  void _showBuyNowModal(String timeSlot) {
-    String timeKey =
-        timeSlot.split(' - ')[0]; // Extract the time (e.g., "11:00")
-
-    showModalBottomSheet(
-      context: context,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(25.0)),
-      ),
-      builder: (BuildContext context) {
-        return FutureBuilder<QuerySnapshot>(
-          future: FirebaseFirestore.instance
-              .collection('drivingSchools')
-              .where('time',
-                  isEqualTo: timeKey) // Filter by time (e.g., "11:00")
-              .get(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: CircularProgressIndicator());
-            }
-
-            if (snapshot.hasError ||
-                !snapshot.hasData ||
-                snapshot.data!.docs.isEmpty) {
-              return Center(child: Text('Error loading driving school data'));
-            }
-
-            // Debugging: Print the snapshot data
-            print('Snapshot Data: ${snapshot.data!.docs}');
-
-            // Iterate over all documents to find the matching driving school
-            String drivingSchoolName = 'Unknown School';
-            for (var doc in snapshot.data!.docs) {
-              var data = doc.data() as Map<String, dynamic>;
-
-              // Check for the school and time match
-              if (data['school'] != null && data['time'] == timeKey) {
-                drivingSchoolName = data['school'] ?? 'Unknown School';
-                break; // Exit loop once you find a match
-              }
-            }
-
-            return Container(
-              padding: EdgeInsets.all(16.0),
-              height: 300, // Adjusted height
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Confirm Booking',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(height: 20),
-                  SelectableText(
-                    textAlign: TextAlign.center,
-                    'Do you want to book a lesson for ${_selectedDay!.toLocal().toIso8601String().split("T")[0]} at $timeSlot?',
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    drivingSchoolName,
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
-                        child: Container(
-                          padding: EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: customblack,
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          child: Text(
-                            'Confirm',
-                            style: TextStyle(color: lightgray),
-                          ),
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
-                        child: Container(
-                          padding: EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: lightgray,
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          child: Text(
-                            'Cancel',
-                            style: TextStyle(color: redcolor),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      },
     );
   }
 }

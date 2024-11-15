@@ -6,8 +6,12 @@ import 'package:driving_school_mobile_app/colors.dart';
 class BookingCalendar extends StatefulWidget {
   final String username;
   final String useremail;
+  final int numberoflessons;
   const BookingCalendar(
-      {super.key, required this.username, required this.useremail});
+      {super.key,
+      required this.username,
+      required this.useremail,
+      required this.numberoflessons});
 
   @override
   _BookingCalendarState createState() => _BookingCalendarState();
@@ -342,6 +346,7 @@ class _BookingCalendarState extends State<BookingCalendar> {
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 20),
+                  Text('Number of Lessons: ${widget.numberoflessons}'),
                   SelectableText(
                     textAlign: TextAlign.center,
                     'Do you want to book a lesson for ${_selectedDay!.toLocal().toIso8601String().split("T")[0]} at $timeSlot?',
