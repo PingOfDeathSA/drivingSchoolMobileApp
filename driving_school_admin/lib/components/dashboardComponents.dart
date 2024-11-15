@@ -1,7 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import '../colors.dart';
+
+
+Widget customLoadingAnimation() {
+  return LoadingAnimationWidget.staggeredDotsWave(
+      color: greenColor, size: 30,
+      
+   ) ;
+}
 
 Widget getPaidUsers() {
   return StreamBuilder<QuerySnapshot>(

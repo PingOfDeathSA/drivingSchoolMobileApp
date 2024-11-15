@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 
+import 'dashboardComponents.dart';
+
 TextStyle style =
     TextStyle(fontFamily: 'Montserrat', fontSize: 15.0, color: Colors.white);
 Widget getallOrders(BuildContext context) {
@@ -89,7 +91,7 @@ Widget getallOrders(BuildContext context) {
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (!snapshot.hasData) {
             return Center(
-              child: CircularProgressIndicator(),
+              child: customLoadingAnimation(),
             );
           }
 

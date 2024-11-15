@@ -3,6 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:driving_school_mobile_app/colors.dart';
 
+import '../components/dashboardComponents.dart';
+
 class BookingCalendar extends StatefulWidget {
   @override
   _BookingCalendarState createState() => _BookingCalendarState();
@@ -46,7 +48,7 @@ class _BookingCalendarState extends State<BookingCalendar> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Lesson Booking'),
+                Text('Booked Slots'),
                 Column(
                   children: [
                     Text(
@@ -98,7 +100,7 @@ class _BookingCalendarState extends State<BookingCalendar> {
                 todayTextStyle: TextStyle(color: lightgray),
               ),
               availableGestures: AvailableGestures.horizontalSwipe,
-              firstDay: DateTime.now(),
+              firstDay: DateTime.utc(2020, 12, 31),
               lastDay: DateTime.utc(2030, 12, 31),
               focusedDay: _focusedDay,
               selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
@@ -164,7 +166,7 @@ class _BookingCalendarState extends State<BookingCalendar> {
                   .snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
+                  return Center(child: customLoadingAnimation());
                 }
 
                 if (snapshot.hasError) {
@@ -195,7 +197,7 @@ class _BookingCalendarState extends State<BookingCalendar> {
                   builder: (context, drivingSchoolsSnapshot) {
                     if (drivingSchoolsSnapshot.connectionState ==
                         ConnectionState.waiting) {
-                      return Center(child: CircularProgressIndicator());
+                      return Center(child: customLoadingAnimation());
                     }
 
                     if (drivingSchoolsSnapshot.hasError) {
@@ -215,7 +217,9 @@ class _BookingCalendarState extends State<BookingCalendar> {
                     }
 
                     if (_selectedDay != null &&
-                        _selectedDay!.isAfter(DateTime.now())) {
+                        _selectedDay!.isAfter(
+                          DateTime.utc(2020, 12, 31),
+                        )) {
                       String selectedDateStr =
                           _selectedDay!.toIso8601String().split('T')[0];
                       return ListView.builder(
@@ -225,33 +229,36 @@ class _BookingCalendarState extends State<BookingCalendar> {
                           bool isBooked = bookedSlotsByDate[selectedDateStr]
                                   ?.contains(timeSlot) ??
                               false;
-
-                          return ListTile(
-                            tileColor: isBooked ? lightgray : Colors.white,
-                            title: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text('$timeSlot - ${8 + index + 1}:00'),
-                                if (drivingSchools.containsKey(timeSlot))
-                                  Text(drivingSchools[timeSlot]
-                                      .toString()
-                                      .toString()!),
-                              ],
+                          return GestureDetector(
+                            onTap: () {
+                              if (isBooked) {
+                                _checkSlotAndShowDetails(
+                                    selectedDateStr, timeSlot);
+                              }
+                            },
+                            child: ListTile(
+                              tileColor: isBooked ? lightgray : Colors.white,
+                              title: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('$timeSlot - ${8 + index + 1}:00'),
+                                  if (drivingSchools.containsKey(timeSlot))
+                                    Text(drivingSchools[timeSlot].toString()),
+                                ],
+                              ),
+                              trailing: isBooked
+                                  ? Icon(Icons.event_busy_outlined,
+                                      color: redcolor)
+                                  : Icon(Icons.event_available,
+                                      color: greenColor),
+                              enabled: isBooked,
                             ),
-                            trailing: isBooked
-                                ? Icon(Icons.event_busy_outlined,
-                                    color: redcolor)
-                                : Icon(Icons.event_available,
-                                    color: greenColor),
-                            enabled: !isBooked,
-                            onTap: isBooked ? null : null,
                           );
                         },
                       );
                     } else {
                       return Center(
-                          child: Text(
-                              'Select a future date to view available slots'));
+                          child: Text('Select a a date to view slots'));
                     }
                   },
                 );
@@ -261,5 +268,72 @@ class _BookingCalendarState extends State<BookingCalendar> {
         ],
       ),
     );
+  }
+
+  void _showSlotDetails(BuildContext context, Map<String, dynamic> slotData) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Slot Details'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Course: ${slotData['course'] ?? 'N/A'}'),
+              Text('Date: ${slotData['date'] ?? 'N/A'}'),
+              Text('Duration: ${slotData['duration'] ?? 'N/A'}'),
+              Text('Instructor: ${slotData['instructor'] ?? 'N/A'}'),
+              Text('Lessons: ${slotData['lessons'] ?? 'N/A'}'),
+              Text('Location: ${slotData['location'] ?? 'N/A'}'),
+              Text('Status: ${slotData['status'] ?? 'N/A'}'),
+              Text('Student: ${slotData['student'] ?? 'N/A'}'),
+              Text('Time: ${slotData['time'] ?? 'N/A'}'),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Close'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _checkSlotAndShowDetails(String selectedDate, String timeSlot) async {
+    // Fetch the slot details from Firestore
+    final snapshot = await FirebaseFirestore.instance
+        .collection('bookedLessons')
+        .where('date', isEqualTo: selectedDate)
+        .where('time', isEqualTo: timeSlot)
+        .get();
+
+    if (snapshot.docs.isNotEmpty) {
+      // Show the slot details
+      _showSlotDetails(context, snapshot.docs.first.data());
+    } else {
+      // Show a message that the slot is not booked
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Slot Not Booked'),
+            content: Text('This slot is not booked.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('Close'),
+              ),
+            ],
+          );
+        },
+      );
+    }
   }
 }

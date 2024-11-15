@@ -189,7 +189,7 @@ class _BookingCalendarState extends State<BookingCalendar> {
                   .snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
+                  return Center(child: customLoadingAnimation());
                 }
 
                 if (snapshot.hasError) {
@@ -220,7 +220,7 @@ class _BookingCalendarState extends State<BookingCalendar> {
                   builder: (context, drivingSchoolsSnapshot) {
                     if (drivingSchoolsSnapshot.connectionState ==
                         ConnectionState.waiting) {
-                      return Center(child: CircularProgressIndicator());
+                      return Center(child: customLoadingAnimation());
                     }
 
                     if (drivingSchoolsSnapshot.hasError) {
@@ -311,7 +311,7 @@ class _BookingCalendarState extends State<BookingCalendar> {
               .get(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: CircularProgressIndicator());
+              return Center(child: customLoadingAnimation());
             }
 
             if (snapshot.hasError ||

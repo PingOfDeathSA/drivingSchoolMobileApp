@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../components/dashboardComponents.dart';
+
 class ProgressPage extends StatelessWidget {
   // Fetch user lessons from Firebase Firestore
   Future<List<Map<String, dynamic>>> fetchUserLessons() async {
@@ -124,7 +126,7 @@ class ProgressPage extends StatelessWidget {
         future: fetchUserLessons(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return Center(child: customLoadingAnimation());
           }
 
           if (snapshot.hasError ||

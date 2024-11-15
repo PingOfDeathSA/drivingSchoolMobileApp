@@ -88,7 +88,7 @@ class _my_ordersState extends State<my_orders> {
                 .snapshots(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(child: CircularProgressIndicator());
+                return Center(child: customLoadingAnimation());
               }
 
               if (snapshot.hasError) {
@@ -148,7 +148,7 @@ class _my_ordersState extends State<my_orders> {
                                               MaterialPageRoute(
                                                 builder: (context) =>
                                                     BookingCalendar(
-                                                      numberoflessons: lessons,
+                                                  numberoflessons: lessons,
                                                   username: widget.username,
                                                   useremail: widget.useremail,
                                                 ),

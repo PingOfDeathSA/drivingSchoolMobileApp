@@ -133,7 +133,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 Dashboardpage(),
                 BookingCalendar(),
                 OrdersPage(),
-                TodoPage(),
+                BookingCalendar(),
                 const SizedBox.shrink(), // For the divider
                 Container(
                   color: Colors.white,

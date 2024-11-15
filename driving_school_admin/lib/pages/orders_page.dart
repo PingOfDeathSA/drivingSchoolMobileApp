@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../colors.dart';
+import '../components/dashboardComponents.dart';
 
 class OrdersPage extends StatefulWidget {
   const OrdersPage({super.key});
@@ -151,7 +152,7 @@ class _OrdersPageState extends State<OrdersPage> {
                     AsyncSnapshot<QuerySnapshot> snapshot) {
                   if (!snapshot.hasData) {
                     return Center(
-                      child: CircularProgressIndicator(),
+                      child: customLoadingAnimation(),
                     );
                   }
 

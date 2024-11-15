@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
+import '../components/dashboardComponents.dart';
 import '../navigator  menu/nav.dart';
 
 Widget getUpComingLessons(
@@ -53,7 +54,7 @@ Widget getUpComingLessons(
                 (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
               if (!snapshot.hasData) {
                 return Center(
-                  child: CircularProgressIndicator(),
+                  child: customLoadingAnimation(),
                 );
               }
 
@@ -208,7 +209,7 @@ Future<void> getAllMissedLessons(
                     AsyncSnapshot<QuerySnapshot> snapshot) {
                   if (!snapshot.hasData) {
                     return Center(
-                      child: CircularProgressIndicator(),
+                      child: customLoadingAnimation(),
                     );
                   }
 
@@ -333,7 +334,7 @@ Widget getAllPackages(
                 (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
               if (!snapshot.hasData) {
                 return Center(
-                  child: CircularProgressIndicator(),
+                  child: customLoadingAnimation(),
                 );
               }
 
