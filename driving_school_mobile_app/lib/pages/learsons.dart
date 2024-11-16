@@ -2,16 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:driving_school_mobile_app/colors.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
+import '../utils/utils.dart';
 
 class BookingCalendar extends StatefulWidget {
   final String username;
   final String useremail;
   final int numberoflessons;
+  final String package_reference;
   const BookingCalendar(
       {super.key,
       required this.username,
       required this.useremail,
-      required this.numberoflessons});
+      required this.numberoflessons,
+      required this.package_reference});
 
   @override
   _BookingCalendarState createState() => _BookingCalendarState();
@@ -24,6 +28,11 @@ class _BookingCalendarState extends State<BookingCalendar> {
   Map<String, List<String>> bookedSlotsByDate = {};
   Map<String, String> drivingSchools = {}; // To store driving schools data
   late bool showBookedAndAvailableSlots = false;
+  String selectedValue = '';
+  // Firestore query to fetch booked lessons based on package reference
+
+// List to store user lessons
+  final List<String> userLessons = [];
 
   List<String> disabledDays = ['Sunday'];
 
@@ -45,8 +54,45 @@ class _BookingCalendarState extends State<BookingCalendar> {
     return totalSlots;
   }
 
+  void getUserLessons() async {
+    final firebaseQuery = FirebaseFirestore.instance
+        .collection('bookedLessons')
+        .where('package_reference', isEqualTo: widget.package_reference)
+        .where('status', isEqualTo: 'pending');
+
+    try {
+      // Clear the list to refresh before adding new data
+      userLessons.clear();
+
+      // Fetch the query snapshot
+      final QuerySnapshot snapshot = await firebaseQuery.get();
+
+      // Check if there are documents
+      if (snapshot.docs.isNotEmpty) {
+        // Extract desired data into the list
+        for (var doc in snapshot.docs) {
+          final data = doc.data() as Map<String, dynamic>;
+
+          // Add the lesson number as a string to the userLessons list
+          userLessons.add(data['lesson_number'].toString());
+        }
+
+        // Sort the list numerically
+        userLessons.sort((a, b) => int.parse(a).compareTo(int.parse(b)));
+
+        print(
+            "User lessons refreshed (sorted): $userLessons"); // Debugging output
+      } else {
+        print("No lessons found for the given package reference.");
+      }
+    } catch (e) {
+      print("Error fetching lessons: $e");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    getUserLessons();
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 100,
@@ -272,8 +318,28 @@ class _BookingCalendarState extends State<BookingCalendar> {
                             onTap: isBooked
                                 ? null
                                 : () {
-                                    _showBuyNowModal(
-                                        '$timeSlot - ${8 + index + 1}:00');
+                                    userLessons.length == 0
+                                        ? showDialog(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              return AlertDialog(
+                                                title: Text(
+                                                    'No lessons available'),
+                                                content: Text(
+                                                    'All lessons for this package have been completed.'),
+                                                actions: [
+                                                  TextButton(
+                                                    onPressed: () {
+                                                      Navigator.pop(context);
+                                                    },
+                                                    child: Text('OK'),
+                                                  ),
+                                                ],
+                                              );
+                                            },
+                                          )
+                                        : _showBuyNowModal(
+                                            '$timeSlot - ${8 + index + 1}:00');
                                   },
                           );
                         },
@@ -296,6 +362,8 @@ class _BookingCalendarState extends State<BookingCalendar> {
   void _showBuyNowModal(String timeSlot) {
     String timeKey =
         timeSlot.split(' - ')[0]; // Extract the time (e.g., "11:00")
+    String localSelectedValue =
+        selectedValue; // Create a local variable for the modal
 
     showModalBottomSheet(
       context: context,
@@ -320,82 +388,220 @@ class _BookingCalendarState extends State<BookingCalendar> {
               return Center(child: Text('Error loading driving school data'));
             }
 
-            // Debugging: Print the snapshot data
-            //   print('Snapshot Data: ${snapshot.data!.docs}');
-
-            // Iterate over all documents to find the matching driving school
             String drivingSchoolName = 'Unknown School';
             for (var doc in snapshot.data!.docs) {
               var data = doc.data() as Map<String, dynamic>;
-
-              // Check for the school and time match
               if (data['school'] != null && data['time'] == timeKey) {
                 drivingSchoolName = data['school'] ?? 'Unknown School';
-                break; // Exit loop once you find a match
+                break;
               }
             }
 
-            return Container(
-              padding: EdgeInsets.all(16.0),
-              height: 300, // Adjusted height
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Confirm Booking',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(height: 20),
-                  Text('Number of Lessons: ${widget.numberoflessons}'),
-                  SelectableText(
-                    textAlign: TextAlign.center,
-                    'Do you want to book a lesson for ${_selectedDay!.toLocal().toIso8601String().split("T")[0]} at $timeSlot?',
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    drivingSchoolName,
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+            return StatefulBuilder(
+              builder: (BuildContext context, StateSetter setModalState) {
+                return Container(
+                  padding: EdgeInsets.all(16.0),
+                  height: 300, // Adjusted height
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
-                        child: Container(
-                          padding: EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: customblack,
-                            borderRadius: BorderRadius.circular(15),
+                      Text(
+                        'Confirm Booking',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Text('Total Lessons: ${widget.numberoflessons}'),
+                        ],
+                      ),
+                      DropdownButtonHideUnderline(
+                        child: DropdownButton2<String>(
+                          hint: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Icon(
+                                Icons.class_outlined,
+                                size: 16,
+                                color: bluecolor,
+                              ),
+                              Text(
+                                localSelectedValue.isEmpty
+                                    ? 'Select lesson number'
+                                    : 'Lesson $localSelectedValue', // Show "Lesson" with selected value
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: bluecolor,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
                           ),
-                          child: Text(
-                            'Confirm',
-                            style: TextStyle(color: lightgray),
+                          items: userLessons
+                              .map((String item) => DropdownMenuItem<String>(
+                                    value: item,
+                                    child: Text(
+                                      item,
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                        color: bluecolor,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ))
+                              .toList(),
+                          value: localSelectedValue.isEmpty
+                              ? null
+                              : localSelectedValue, // Handle initial empty state
+                          onChanged: (value) {
+                            setModalState(() {
+                              localSelectedValue = value!;
+                            });
+                          },
+                          buttonStyleData: ButtonStyleData(
+                            height: 50,
+                            width: MediaQuery.of(context).size.width,
+                            padding: const EdgeInsets.only(left: 14, right: 14),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(14),
+                              color: lightgray,
+                            ),
+                            elevation: 1,
+                          ),
+                          iconStyleData: const IconStyleData(
+                            icon: Icon(
+                              Icons.arrow_forward_ios_outlined,
+                            ),
+                            iconSize: 14,
+                            iconEnabledColor: bluecolor,
+                            iconDisabledColor: bluecolor,
+                          ),
+                          dropdownStyleData: DropdownStyleData(
+                            maxHeight: 200,
+                            width: 100,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(14),
+                              color: lightgray,
+                            ),
+                            offset: const Offset(20, 0),
+                            scrollbarTheme: ScrollbarThemeData(
+                              radius: const Radius.circular(40),
+                              thickness: MaterialStateProperty.all(6),
+                              thumbVisibility: MaterialStateProperty.all(true),
+                            ),
+                          ),
+                          menuItemStyleData: const MenuItemStyleData(
+                            height: 40,
+                            padding: EdgeInsets.only(left: 14, right: 14),
                           ),
                         ),
                       ),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
-                        child: Container(
-                          padding: EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: lightgray,
-                            borderRadius: BorderRadius.circular(15),
+                      SizedBox(height: 20),
+                      SelectableText(
+                        textAlign: TextAlign.center,
+                        'Do you want to book a lesson for ${_selectedDay!.toLocal().toIso8601String().split("T")[0]} at $timeSlot?',
+                      ),
+                      SizedBox(height: 10),
+                      Text(
+                        drivingSchoolName,
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(height: 20),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          GestureDetector(
+                            onTap: () async {
+                              try {
+                                print(
+                                    'User email: ${widget.useremail}'); // Debugging output
+                                print(
+                                    'Selected lesson number: $localSelectedValue'); // Debugging output
+                                print(
+                                    'widget.package_reference: ${widget.package_reference}'); // Debugging output
+
+                                // Retrieve the document ID based on conditions (e.g., user email and package reference)
+                                final querySnapshot = await FirebaseFirestore
+                                    .instance
+                                    .collection('bookedLessons')
+                                    .where('email', isEqualTo: widget.useremail)
+                                    .where('package_reference',
+                                        isEqualTo: widget.package_reference)
+                                    .where('lesson_number',
+                                        isEqualTo:
+                                            localSelectedValue) // Query as string
+                                    .get();
+
+                                if (querySnapshot.docs.isNotEmpty) {
+                                  // Assuming the document exists, get its ID
+                                  final documentId =
+                                      querySnapshot.docs.first.id;
+                                  String fromtime = timeSlot.split(' - ')[0];
+                                  // Update the document with new data
+                                  await FirebaseFirestore.instance
+                                      .collection('bookedLessons')
+                                      .doc(documentId)
+                                      .update({
+                                    'date': _selectedDay!
+                                        .toLocal()
+                                        .toIso8601String()
+                                        .split("T")[0],
+                                    'time': fromtime,
+                                    'lesson_number': localSelectedValue,
+                                    'status': 'pending',
+                                    'location': drivingSchoolName,
+                                  });
+
+                                  // Show confirmation or perform further actions
+                                  print('Document updated successfully.');
+                                } else {
+                                  print(
+                                      'No matching document found to update.');
+                                }
+                              } catch (e) {
+                                print('Error updating document: $e');
+                              }
+
+                              Navigator.pop(context); // Close the modal
+                            },
+                            child: Container(
+                              padding: EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: customblack,
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              child: Text(
+                                'Confirm',
+                                style: TextStyle(color: lightgray),
+                              ),
+                            ),
                           ),
-                          child: Text(
-                            'Cancel',
-                            style: TextStyle(color: redcolor),
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.pop(context);
+                            },
+                            child: Container(
+                              padding: EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: lightgray,
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              child: Text(
+                                'Cancel',
+                                style: TextStyle(color: redcolor),
+                              ),
+                            ),
                           ),
-                        ),
+                        ],
                       ),
                     ],
                   ),
-                ],
-              ),
+                );
+              },
             );
           },
         );

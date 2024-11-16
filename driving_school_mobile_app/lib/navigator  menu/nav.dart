@@ -43,7 +43,10 @@ class _BottomNavigationBarExampleState
             username: widget.username,
             useremail: widget.useremail,
           ),
-          ProgressPage(),
+          ProgressPage(
+            username: widget.username,
+            useremail: widget.useremail,
+          ),
           TodoPage(),
         ],
       ),

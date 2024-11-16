@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../authentication/auth_service.dart';
 import '../authentication/google_sign_in.dart';
+import '../utils/utils.dart';
 import 'learsons.dart';
 
 class my_orders extends StatefulWidget {
@@ -84,7 +85,7 @@ class _my_ordersState extends State<my_orders> {
           child: StreamBuilder<QuerySnapshot>(
             stream: FirebaseFirestore.instance
                 .collection('packageOrders')
-                .where('email', isEqualTo: 'ronaldnt8@gmail.com')
+                .where('email', isEqualTo: widget.useremail)
                 .snapshots(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
@@ -107,7 +108,8 @@ class _my_ordersState extends State<my_orders> {
                     final description = lesson['description'] ?? 'No Title';
                     final price = lesson['price'] ?? 'No Date';
                     final packagename = lesson['name'] ?? 'No Time';
-                    final lessons = lesson['lessons'] ?? 'No Location';
+                    final lessons = lesson['lessons'] ?? 'No lessons';
+                    final package_reference = lesson['package_reference'] ?? 'no package reference';
 
                     final paid = lesson['paid'] ?? 'No Paid';
 
@@ -151,6 +153,7 @@ class _my_ordersState extends State<my_orders> {
                                                   numberoflessons: lessons,
                                                   username: widget.username,
                                                   useremail: widget.useremail,
+                                                  package_reference: package_reference,
                                                 ),
                                               ),
                                             );

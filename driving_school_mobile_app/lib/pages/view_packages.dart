@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:driving_school_mobile_app/colors.dart';
 import 'package:driving_school_mobile_app/navigator%20%20menu/nav.dart';
 import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
 
 class ViewPackages extends StatefulWidget {
   final Map<String, dynamic> package;
@@ -85,57 +86,90 @@ class _ViewPackagesState extends State<ViewPackages> {
 
   Future<void> _addPackageOrder() async {
     try {
-      // Access the Firestore collection for package orders
+      // Access the Firestore collections
       final packageOrdersCollection =
           FirebaseFirestore.instance.collection('packageOrders');
+      final userLessonsCollection =
+          FirebaseFirestore.instance.collection('bookedLessons');
+
+      // Generate a unique reference ID
+      String generateUniqueId() {
+        var uuid = Uuid();
+        return uuid.v4(); // Generates a unique UUID
+      }
 
       // Query the user's profile document by email
-      try {
-        final QuerySnapshot leanersProfileSnapshot = await FirebaseFirestore
-            .instance
-            .collection('learnersProfile')
-            .where('email', isEqualTo: widget.useremail)
-            .get();
+      final QuerySnapshot learnersProfileSnapshot = await FirebaseFirestore
+          .instance
+          .collection('learnersProfile')
+          .where('email', isEqualTo: widget.useremail)
+          .get();
 
-        if (leanersProfileSnapshot.docs.isNotEmpty) {
-          final data =
-              leanersProfileSnapshot.docs.first.data() as Map<String, dynamic>;
-          print(data[
-              'phone']); // This will print the phone field from the document
+      if (learnersProfileSnapshot.docs.isNotEmpty) {
+        final data =
+            learnersProfileSnapshot.docs.first.data() as Map<String, dynamic>;
 
-          // Create a new document in packageOrders
-          await packageOrdersCollection.doc().set({
-            'name': widget.package['name'],
-            'price': widget.package['price'],
-            'description': widget.package['description'],
-            'email': widget.useremail,
-            'username': widget.username,
-            'uid': widget.useremail,
-            'paid': false,
-            'phone': data['phone'],
-            'date': DateTime.now(),
-            'lessons': widget.package['number_of_lessons'],
-          });
-
-          // Show success message and navigate back to the home screen
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Package order added successfully!')),
-          );
-
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => BottomNavigationBarExample(
-                useremail: widget.useremail,
-                username: widget.username,
-              ),
+        // Create a unique reference for the package
+        String uniqueReference = generateUniqueId();
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => BottomNavigationBarExample(
+              useremail: widget.useremail,
+              username: widget.username,
             ),
-          );
-        } else {
-          print("Document does not exist");
+          ),
+        );
+        // Add the package order
+        await packageOrdersCollection.doc(uniqueReference).set({
+          'package_reference': uniqueReference,
+          'name': widget.package['name'],
+          'price': widget.package['price'],
+          'description': widget.package['description'],
+          'email': widget.useremail,
+          'username': widget.username,
+          'uid': widget.useremail,
+          'paid': false,
+          'phone': data['phone'],
+          'date': DateTime.now(),
+          'lessons': widget.package['number_of_lessons'],
+        });
+
+        // Batch to add lessons efficiently
+        WriteBatch batch = FirebaseFirestore.instance.batch();
+
+        for (var i = 0; i < widget.package['number_of_lessons']; i++) {
+          String lessonId = generateUniqueId();
+          final lessonDocRef = userLessonsCollection.doc(lessonId);
+          final numberOfLessons = i + 1;
+          batch.set(lessonDocRef, {
+            'package_reference': uniqueReference,
+            'course': widget.package['name'],
+            'date': '',
+            'duration': '1 hour',
+            'email': widget.useremail,
+            'instructor': 'Themba',
+            'lesson_type': 'lesson type',
+            'lesson_number': numberOfLessons.toString(),
+            'location': 'null',
+            'status': 'pending',
+            'student': widget.username,
+            'time': 'null',
+          });
         }
-      } catch (e) {
-        print("Error retrieving contacts: $e");
+
+        // Commit the batch
+        await batch.commit();
+
+        // Show success message and navigate back
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Package order added successfully!')),
+        );
+      } else {
+        print("Learner's profile not found.");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error: Learner's profile not found.")),
+        );
       }
     } catch (e) {
       print("Error saving order: $e");
